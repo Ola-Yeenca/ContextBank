@@ -1086,6 +1086,7 @@ def test_cli_ai_generate_card_constructs_configured_openai_provider(tmp_path, mo
             api_key: str | None,
             base_url: str | None = None,
             allow_cloud: bool = False,
+            timeout: float = 60.0,
         ) -> None:
             captured.update(
                 {
@@ -1186,6 +1187,7 @@ def test_cli_external_embedding_index_constructs_configured_provider(tmp_path, m
             api_key: str | None,
             base_url: str | None = None,
             allow_cloud: bool = False,
+            timeout: float = 60.0,
         ) -> None:
             captured.update(
                 {

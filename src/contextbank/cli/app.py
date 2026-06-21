@@ -2542,6 +2542,7 @@ def _generation_provider(provider_name: str, *, settings: Any) -> Any:
             api_key=api_key,
             base_url=str(settings.ai.generation_base_url or ""),
             allow_cloud=bool(settings.ai.allow_cloud),
+            timeout=float(settings.ai.generation_timeout),
         )
     raise ValueError(
         "Unsupported generation provider. Use configured, openai, or openai-compatible."

@@ -244,6 +244,7 @@ def _validated_generated_card_payload(text: str) -> dict[str, Any]:
         raise ValueError("Generation provider returned invalid card JSON.") from exc
     if not isinstance(payload, dict):
         raise ValueError("Generation provider card output must be a JSON object.")
+    payload = _coerce_generated_card_payload(payload)
     for field in GENERATED_CARD_REQUIRED_FIELDS:
         if not isinstance(payload.get(field), str):
             raise ValueError(f"Generation provider card output is missing string field: {field}.")
@@ -257,6 +258,62 @@ def _validated_generated_card_payload(text: str) -> dict[str, Any]:
     if confidence is not None and not isinstance(confidence, int | float):
         raise ValueError("Generated card confidence must be a number.")
     return payload
+
+
+def _coerce_generated_card_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    """Repair common off-shape fields from smaller local models before strict validation.
+
+    Small models (e.g. a 4B local model) routinely return a scalar where a list is expected,
+    a list where a string is expected, or numbers/None inside string lists. Rather than
+    hard-failing the whole card (PRD Sec 17.3), coerce these recoverable shapes; genuinely
+    absent required fields still fail downstream.
+    """
+
+    coerced = dict(payload)
+    for field in GENERATED_CARD_STRING_FIELDS:
+        value = coerced.get(field)
+        if field in coerced and value is not None and not isinstance(value, str):
+            coerced[field] = _as_text(value)
+    for field in GENERATED_CARD_LIST_FIELDS:
+        if field in coerced and not _is_string_list(coerced[field]):
+            coerced[field] = _as_text_list(coerced[field])
+    confidence = coerced.get("confidence")
+    if isinstance(confidence, str):
+        try:
+            coerced["confidence"] = float(confidence)
+        except ValueError:
+            coerced.pop("confidence", None)
+    return coerced
+
+
+def _as_text(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, bool):
+        return str(value)
+    if isinstance(value, int | float):
+        return str(value)
+    if isinstance(value, list):
+        return " ".join(_as_text(item) for item in value if item is not None).strip()
+    if isinstance(value, dict):
+        return json.dumps(value, ensure_ascii=False)
+    return ""
+
+
+def _as_text_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        out: list[str] = []
+        for item in value:
+            if item is None:
+                continue
+            text = item if isinstance(item, str) else _as_text(item)
+            if text.strip():
+                out.append(text)
+        return out
+    text = _as_text(value)
+    return [text] if text.strip() else []
 
 
 def _merge_generated_card_payload(
