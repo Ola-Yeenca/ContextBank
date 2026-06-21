@@ -1,0 +1,35 @@
+name: ContextBank
+goals:
+  - Build an open-source local-first personal context layer for AI-assisted work.
+  - Ingest X bookmarks, manual URLs, pasted text, and local files into a durable local library.
+  - Expose safe read-only MCP retrieval and project autoload for Codex, Claude, Cursor, and other agents.
+  - Preserve provenance, freshness, BYOK controls, backups, and prompt-injection boundaries.
+stack:
+  - Python
+  - SQLite
+  - Typer
+  - Pydantic
+  - MCP
+  - Markdown
+topics:
+  - local-first
+  - agent-context
+  - retrieval
+  - x-bookmarks
+  - byok-ai
+  - mcp-autoload
+  - provenance
+  - prompt-injection-defense
+constraints:
+  - open-source core
+  - no mandatory cloud
+  - no bundled provider API keys
+  - read-only agent tools by default
+  - source content is untrusted evidence
+  - official X API first, manual import fallback
+exclude_topics:
+  []
+autoload:
+  enabled: true
+  token_budget: 1800
+  output_type: implementation
