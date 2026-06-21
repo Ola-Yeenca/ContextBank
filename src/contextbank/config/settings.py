@@ -26,6 +26,7 @@ generation_provider = "none"
 generation_model = ""
 generation_base_url = ""
 generation_credential_env = ""
+generation_timeout = 60.0
 embedding_provider = "none"
 embedding_model = ""
 embedding_base_url = ""
@@ -57,6 +58,7 @@ class AISettings(BaseModel):
     generation_model: str = ""
     generation_base_url: str = ""
     generation_credential_env: str = ""
+    generation_timeout: float = Field(default=60.0, gt=0)
     embedding_provider: str = "none"
     embedding_model: str = ""
     embedding_base_url: str = ""
