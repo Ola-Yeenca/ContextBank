@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import tomllib
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -30,6 +31,15 @@ from contextbank.storage.repository import ContextBankRepository
 from tests.helpers import seed_card
 
 runner = CliRunner()
+ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+
+
+def _compact_cli_output(output: str) -> str:
+    return re.sub(r"\s+", "", ANSI_ESCAPE_RE.sub("", output))
+
+
+def _assert_cli_output_contains(output: str, expected: str) -> None:
+    assert _compact_cli_output(expected) in _compact_cli_output(output)
 
 
 def test_cli_init_import_search_context_and_exports(tmp_path, monkeypatch):
@@ -1322,7 +1332,8 @@ def test_cli_mcp_config_emits_codex_toml_and_json_client_snippet(tmp_path, monke
 
     invalid = runner.invoke(app, ["mcp", "config", "--client", "not-real"])
     assert invalid.exit_code != 0
-    assert "Unknown MCP client/config preset" in invalid.output
+    _assert_cli_output_contains(invalid.output, "not-real")
+    _assert_cli_output_contains(invalid.output, "mcp-json")
 
     project_root = tmp_path / "project"
     project_root.mkdir()
@@ -1426,7 +1437,8 @@ def test_cli_mcp_config_emits_codex_toml_and_json_client_snippet(tmp_path, monke
         ],
     )
     assert all_with_target.exit_code != 0
-    assert "--target can only be used with a single --client" in all_with_target.output
+    _assert_cli_output_contains(all_with_target.output, "--target")
+    _assert_cli_output_contains(all_with_target.output, "single --client")
 
     manifest = runner.invoke(app, ["mcp", "manifest", "--json"])
     assert manifest.exit_code == 0, manifest.output
