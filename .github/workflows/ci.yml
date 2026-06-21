@@ -29,4 +29,6 @@ jobs:
         run: python -m ruff check src tests
 
       - name: Pytest
+        env:
+          COLUMNS: "80"
         run: python -m pytest -q -p no:cacheprovider
