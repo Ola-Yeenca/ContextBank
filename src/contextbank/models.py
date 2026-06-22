@@ -141,6 +141,9 @@ class SearchFilters(BaseModel):
     review_status: str | None = None
     project: str | None = None
     min_confidence: float | None = None
+    date_from: datetime | None = None
+    date_to: datetime | None = None
+    used: bool | None = None
 
 
 class SearchResult(BaseModel):

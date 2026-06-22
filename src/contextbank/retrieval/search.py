@@ -1168,7 +1168,13 @@ def _merge_search_results(
 def _cosine_similarity(left: list[float], right: list[float]) -> float:
     if not left or not right or len(left) != len(right):
         return 0.0
-    return sum(a * b for a, b in zip(left, right, strict=True))
+    dot = sum(a * b for a, b in zip(left, right, strict=True))
+    left_norm = sum(a * a for a in left) ** 0.5
+    right_norm = sum(b * b for b in right) ** 0.5
+    if left_norm == 0.0 or right_norm == 0.0:
+        return 0.0
+    # True cosine: normalize so ranking reflects direction, not vector magnitude (M-2).
+    return dot / (left_norm * right_norm)
 
 
 def _card_embedding_text(card: KnowledgeCard) -> str:

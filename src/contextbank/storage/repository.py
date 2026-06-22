@@ -1614,6 +1614,20 @@ class ContextBankRepository:
         if filters.min_confidence is not None:
             clauses.append("knowledge_cards.confidence >= :min_confidence")
             params["min_confidence"] = filters.min_confidence
+        if filters.date_from is not None:
+            clauses.append("source_items.source_created_at >= :date_from")
+            params["date_from"] = filters.date_from.isoformat()
+        if filters.date_to is not None:
+            clauses.append("source_items.source_created_at <= :date_to")
+            params["date_to"] = filters.date_to.isoformat()
+        if filters.used is not None:
+            used_exists = (
+                "EXISTS (SELECT 1 FROM project_item_links "
+                "WHERE project_item_links.knowledge_card_id = knowledge_cards.id "
+                "AND project_item_links.status = :used_status)"
+            )
+            clauses.append(used_exists if filters.used else f"NOT {used_exists}")
+            params["used_status"] = "used"
 
         if not clauses:
             return "", params
