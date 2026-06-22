@@ -223,6 +223,14 @@ integrity, schema version, config parseability, secret-key/value absence, and ca
 
 ## X Credentials
 
+> **You connect your own X account.** ContextBank ingests *your* bookmarks through *your own* X
+> Developer app and account — it bundles no credentials and never uses the maintainer's account or
+> any shared key. You create a free X Developer app, use its public OAuth Client ID, and authorize
+> your own account; the resulting token is stored locally on your machine (`~/.contextbank/`), never
+> in the repo. **X sync is optional** — manual URL, file, pasted-text, and bulk-list import all work
+> with no X account at all (see [Quick Start](#quick-start)). Current X API access and pricing change
+> over time, so check them when you set this up.
+
 ContextBank does not store X access tokens in config files. X bookmarks require an OAuth 2.0
 user access token, not an app-only Bearer token. The token needs `tweet.read`, `users.read`, and
 `bookmark.read`; add `offline.access` only if you want refresh-token sync.
@@ -325,3 +333,13 @@ contextbank ai index-embeddings --provider configured
 
 `ai.allow_cloud` is required for non-loopback endpoints. Loopback OpenAI-compatible endpoints can
 use `openai-compatible` with `ai.embedding_base_url` and no bundled key.
+
+## Credits
+
+ContextBank was built and hardened in public with AI pair-programming:
+
+- **Codex** (OpenAI) — primary implementation: ingestion, retrieval, MCP server, connectors, storage, and CLI.
+- **Claude** (Anthropic, Opus) — multi-agent security/PRD audits, fixes, and review-gated pull requests.
+
+It's a BYOK, local-first project with no bundled secrets. Contributions are welcome — see
+[`CONTRIBUTING.md`](CONTRIBUTING.md) and the security policy in [`SECURITY.md`](SECURITY.md).
